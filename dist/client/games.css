@@ -1,0 +1,47 @@
+/* 时节 · 小游戏层：沿用纸面 #f8f7f2、墨绿 #30493d、金 #c9a06a */
+.gm{position:fixed;inset:0;z-index:20;background:var(--paper,#f8f7f2);color:var(--ink,#30493d);display:grid;grid-template-rows:auto auto 1fr auto;opacity:0;transform:scale(1.02);transition:opacity .42s ease,transform .6s cubic-bezier(.16,.84,.3,1)}
+.gm[hidden]{display:none}
+.gm.on{opacity:1;transform:none}
+.gm-top{display:flex;align-items:center;justify-content:space-between;padding:18px 4.5vw 10px;gap:12px}
+.gm-top button{font-size:13px;letter-spacing:.12em;color:var(--mute,#6b776d);padding:8px 4px;border-radius:6px;transition:color .3s}
+.gm-top button:hover{color:var(--ink,#30493d)}
+.gm-title{font-family:var(--serif);font-size:18px;letter-spacing:.24em}
+.gm-prog{height:2px;margin:0 4.5vw;background:color-mix(in srgb,var(--ink,#30493d) 10%,transparent);border-radius:2px;overflow:hidden}
+.gm-prog i{display:block;height:100%;width:0;background:var(--sun,#c9a06a);transition:width .35s cubic-bezier(.22,1,.36,1)}
+.gm-stage{position:relative;display:grid;place-items:center;min-height:0;padding:12px 3vw}
+.gm-stage canvas{display:block;touch-action:none;border-radius:4px;cursor:pointer}
+.gm-tip{margin:0;padding:6px 4.5vw 22px;text-align:center;font-size:13px;letter-spacing:.1em;color:var(--mute,#6b776d);min-height:1.6em}
+.gm-card{position:absolute;left:50%;top:50%;width:min(420px,88vw);transform:translate(-50%,-46%);opacity:0;pointer-events:none;background:color-mix(in srgb,var(--paper,#f8f7f2) 94%,transparent);border:1px solid color-mix(in srgb,var(--ink,#30493d) 14%,transparent);border-radius:16px;padding:28px 30px 24px;box-shadow:0 20px 60px rgba(48,73,61,.12);transition:opacity .45s ease,transform .6s cubic-bezier(.16,.84,.3,1)}
+.gm-card.show{opacity:1;transform:translate(-50%,-50%);pointer-events:auto}
+.gm-card h3{font-family:var(--serif);font-weight:400;font-size:28px;letter-spacing:.14em;margin:4px 0 14px}
+.gm-kicker{margin:0;font-size:12px;letter-spacing:.18em;color:var(--sun-ink,#9a6f3c)}
+.gm-card ul{margin:0 0 12px;padding:0 0 0 1.1em;font-size:14px;line-height:1.9}
+.gm-goal{margin:0;font-size:13px;color:var(--mute,#6b776d);line-height:1.8}
+.gm-know{border-top:1px solid color-mix(in srgb,var(--ink,#30493d) 12%,transparent);padding-top:12px}
+.gm-know b{font-family:var(--serif);font-weight:400;font-size:16px;letter-spacing:.1em}
+.gm-know p{margin:6px 0 0;font-size:14px;line-height:1.9}
+.gm-btns{display:flex;gap:10px;margin-top:20px}
+.gm-btns button{flex:1;padding:11px 0;border-radius:999px;background:var(--ink,#30493d);color:var(--paper,#f8f7f2);font-size:14px;letter-spacing:.2em;transition:transform .2s,background .3s}
+.gm-btns button.ghost{background:none;color:var(--ink,#30493d);border:1px solid color-mix(in srgb,var(--ink,#30493d) 25%,transparent)}
+.gm-btns button:hover{transform:translateY(-1px)}
+.gm-toast{position:absolute;left:50%;top:9%;transform:translate(-50%,6px);font-family:var(--serif);font-size:18px;letter-spacing:.2em;color:var(--sun-ink,#9a6f3c);opacity:0;pointer-events:none;transition:opacity .35s,transform .5s cubic-bezier(.16,.84,.3,1)}
+.gm-toast.show{opacity:1;transform:translate(-50%,0)}
+body.in-game .chat-launcher{display:none}
+
+/* 详情页插图上的游戏入口 */
+.d-art.has-game{cursor:pointer}
+.play-chip{position:absolute;right:4%;top:3%;z-index:2;display:inline-flex;align-items:center;gap:7px;font-size:12.5px;letter-spacing:.16em;color:var(--sun-ink,#9a6f3c);background:color-mix(in srgb,var(--paper,#f8f7f2) 86%,transparent);border:1px solid rgba(154,111,60,.35);border-radius:999px;padding:6px 14px 6px 11px;transition:background .3s,gap .3s}
+.play-chip svg{width:13px;height:13px}
+.d-art.has-game:hover .play-chip,.play-chip:focus-visible{background:rgba(201,160,106,.16);gap:10px}
+@media (prefers-reduced-motion:reduce){.gm,.gm-card{transition:none}}
+/* 获得新物品卡（衣橱 v1.0）：复用 .gm-card，轻微淡入上浮 */
+.gm-gain{text-align:center}
+.gm-gain h3{margin:6px 0 8px}
+.gm-item{position:relative;width:140px;height:140px;margin:10px auto 4px}
+.gm-item::before{content:'';position:absolute;inset:-14px;border-radius:50%;background:radial-gradient(closest-side,color-mix(in srgb,var(--w) 75%,transparent),transparent);filter:blur(2px)}
+.gm-item svg{position:relative;width:100%;height:100%;display:block}
+.gm-short{margin:0;font-size:14px;line-height:1.8}
+.gm-guide{margin:8px 0 0;font-size:12.5px;letter-spacing:.06em;color:var(--mute,#6b776d)}
+.gm-card.gm-new .gm-gain{animation:gmGain .7s cubic-bezier(.16,.84,.3,1) both}
+@keyframes gmGain{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.gm-card.gm-new .gm-gain{animation:none}}

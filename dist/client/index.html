@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f8f7f2"><meta name="description" content="时节有信：转动二十四节气，点开每个节气，看见三候与四季。">
+<title>时节有信｜二十四节气</title>
+<style>
+:root{--edge:clamp(18px,2.6vw,40px);--paper:#f8f7f2;--ink:#30493d;--mute:#6b776d;--line:#d9dccf;--sun:#c9a06a;--sun-ink:#9a6f3c;--accent:#b9824f;
+  --serif:"Songti SC","STSong","Noto Serif CJK SC","Source Han Serif SC",serif;
+  --sans:-apple-system,BlinkMacSystemFont,"PingFang SC","Noto Sans CJK SC",sans-serif;
+  --ease:cubic-bezier(.22,1,.36,1);--out:cubic-bezier(.16,.84,.3,1)}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:6px}
+body.in-detail header{opacity:0;visibility:hidden}
+header{transition:opacity .5s,visibility .5s;position:fixed;z-index:3;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:24px var(--edge);pointer-events:none}
+.brand{display:flex;align-items:center;gap:11px}
+.brand svg{width:27px;height:28.7px;flex:none;display:block}
+.brand-tx{display:flex;flex-direction:column;align-items:flex-start;gap:7px}
+.brand-name{font-family:var(--serif);font-size:21px;letter-spacing:.3em;line-height:1}
+.brand-sub{font-family:var(--serif);font-size:11.5px;letter-spacing:.14em;color:var(--mute);line-height:1}
+
+/* ——— 首页轮盘 ——— */
+#home{position:fixed;inset:0;display:grid;place-items:center;transform-origin:var(--zx,50%) var(--zy,50%);will-change:transform,opacity,filter}
+#wheel{position:relative;width:var(--S);height:var(--S)}
+#wheel svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;font-family:var(--sans)}
+.term{position:absolute;left:0;top:0;transform:translate(-50%,-50%);font-family:var(--serif);font-size:var(--fs,15px);letter-spacing:.06em;padding:8px 6px;line-height:1;white-space:nowrap;border-radius:20px;transition:color .3s,background .3s,font-size .3s}
+.term{color:color-mix(in srgb,var(--ink) 82%,transparent)}
+.term:hover,.term:focus-visible{color:var(--sun-ink);background:rgba(201,160,106,.12)}
+.term.today{color:var(--sun-ink);font-size:calc(var(--fs,15px) + 4px)}
+.center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;pointer-events:none}
+.center *{pointer-events:auto}
+.c-date{font-size:13px;color:var(--mute);letter-spacing:.14em}
+.c-term{font-family:var(--serif);font-weight:400;font-size:calc(var(--S)*.16);letter-spacing:.14em;line-height:1.25;margin:.12em 0 .05em .14em}
+.c-hou{font-family:var(--serif);font-size:17px;letter-spacing:.12em;margin:0 0 22px}
+.c-hou span{color:var(--mute);font-size:13px;margin-right:10px;font-family:var(--sans);letter-spacing:.06em}
+.enter{font-family:var(--serif);font-size:15px;letter-spacing:.16em;padding:11px 26px;border-radius:30px;background:var(--ink);color:var(--paper);transition:transform .4s var(--out),box-shadow .4s}
+.enter:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(48,73,61,.2)}
+.hint{position:fixed;left:0;right:0;bottom:26px;text-align:center;font-size:12.5px;color:var(--mute);letter-spacing:.12em}
+
+/* ——— 节气详情 ——— */
+#detail{position:fixed;inset:0;z-index:2;background:var(--paper);overflow:auto;overflow-x:hidden;overscroll-behavior:contain}
+#detail[hidden]{display:none}
+.d-top{position:sticky;top:0;z-index:2;display:flex;justify-content:space-between;align-items:center;padding:20px 4.5vw;background:linear-gradient(var(--paper) 60%,transparent)}
+.back{display:flex;align-items:center;gap:10px;font-size:13px;letter-spacing:.1em;padding:9px 16px 9px 12px;border:1px solid color-mix(in srgb,var(--ink) 22%,transparent);border-radius:30px;transition:background .3s}
+.back:hover{background:color-mix(in srgb,var(--ink) 7%,transparent)}
+.back svg{width:18px;height:18px}
+.pn{display:flex;gap:6px}
+.pn button{font-family:var(--serif);font-size:14px;letter-spacing:.08em;padding:9px 14px;border-radius:30px;color:var(--mute);transition:color .3s,background .3s}
+.pn button:hover{color:var(--ink);background:color-mix(in srgb,var(--ink) 7%,transparent)}
+.d-body{display:grid;grid-template-columns:minmax(330px,40%) 1fr;gap:3vw;max-width:1320px;margin:0 auto;padding:0 4.5vw 48px;min-height:calc(100svh - 90px);align-items:center}
+.d-text{max-width:500px}
+.d-meta{font-size:13px;color:var(--mute);letter-spacing:.12em}
+.d-name{font-family:var(--serif);font-weight:400;font-size:clamp(64px,7.4vw,104px);letter-spacing:.14em;line-height:1.15;margin:8px 0 6px}
+.d-pinyin{font-size:13px;color:var(--mute);letter-spacing:.2em;margin-bottom:20px}
+.d-origin{font-family:var(--serif);font-size:17px;line-height:1.95;margin:0 0 26px}
+.hou{list-style:none;padding:0;margin:0 0 26px;border-top:1px solid color-mix(in srgb,var(--ink) 14%,transparent)}
+.hou li{border-bottom:1px solid color-mix(in srgb,var(--ink) 14%,transparent)}
+.hou button{width:100%;text-align:left;display:grid;grid-template-columns:3.2em 1fr;gap:4px 12px;padding:12px 10px 12px 0;transition:background .3s}
+.hou button:hover{background:color-mix(in srgb,var(--ink) 4%,transparent)}
+.hou .o{font-size:12px;color:var(--mute);padding-top:4px;letter-spacing:.06em}
+.hou .n{font-family:var(--serif);font-size:17px;letter-spacing:.08em}
+.hou .x{grid-column:2;font-size:13px;line-height:1.75;color:var(--mute)}
+.hou button[aria-pressed="true"] .n{color:var(--accent)}
+.hou button[aria-pressed="true"] .o{color:var(--accent)}
+.hou button[aria-pressed="true"] .x{color:var(--ink)}
+.hou .tag{display:inline-block;margin-left:8px;font-size:11px;font-family:var(--sans);letter-spacing:.06em;color:var(--sun-ink);border:1px solid rgba(154,111,60,.35);border-radius:10px;padding:1px 7px;vertical-align:2px}
+.d-poem{display:flex;align-items:baseline;justify-content:space-between;gap:18px;flex-wrap:wrap}
+.d-poem .poem{font-family:var(--serif);font-size:15px;letter-spacing:.06em;line-height:1.8;margin:0}
+.d-poem .by{font-size:12px;color:var(--mute);letter-spacing:.08em;margin:0}
+.more-link{margin-top:22px;display:inline-flex;align-items:center;gap:6px;font-size:12.5px;letter-spacing:.14em;color:var(--mute);padding:4px 0;border-bottom:1px solid color-mix(in srgb,var(--ink) 22%,transparent);transition:color .4s,border-color .4s,gap .4s var(--out)}
+.more-link:hover{color:var(--ink);border-color:var(--ink);gap:10px}
+.more-link svg{width:12px;height:12px}
+
+.d-art{position:relative;aspect-ratio:600/470;width:100%;max-width:760px;justify-self:center}
+/* 季节色只在这里：几笔手刷的水彩 */
+.wash{position:absolute;inset:-8% -10%;width:120%;height:116%;pointer-events:none;overflow:visible;mix-blend-mode:multiply}
+.wash .brush{stroke-dasharray:1 1;stroke-dashoffset:1;opacity:0}
+.wash.on .brush{stroke-dashoffset:0;opacity:var(--o);transition:stroke-dashoffset 1.5s cubic-bezier(.45,.05,.25,1) var(--dl),opacity .7s ease var(--dl)}
+.wash .fall{animation:fall var(--d,12s) linear var(--dl,0s) infinite}
+@keyframes fall{0%{transform:translate(0,-30px) rotate(0);opacity:0}15%{opacity:1}85%{opacity:1}100%{transform:translate(var(--dx,40px),360px) rotate(var(--r,200deg));opacity:0}}
+.scene-slot{position:absolute;inset:0}
+.scene-slot svg{width:100%;height:100%;display:block}
+/* 关掉线稿自带的色块，统一由水彩层提供 */
+.scene-slot .detailed-scene>path:first-of-type,.scene-slot .detailed-scene>ellipse:first-of-type{display:none}
+.caption{position:absolute;left:0;right:0;bottom:-4px;text-align:center;font-family:var(--serif);font-size:13px;color:var(--mute);letter-spacing:.16em}
+
+/* ——— 了解更多 ——— */
+#drawer{position:fixed;inset:0 0 0 auto;margin:0;width:min(460px,100vw);height:100%;max-height:none;max-width:none;border:0;padding:0;background:var(--paper);color:var(--ink);box-shadow:-24px 0 60px rgba(48,73,61,.12);overflow:auto;overscroll-behavior:contain;transform:translateX(100%);transition:transform .7s var(--out)}
+#drawer.show{transform:none}
+#drawer::backdrop{background:rgba(48,73,61,0);transition:background .6s}
+#drawer.show::backdrop{background:rgba(48,73,61,.16)}
+.m-head{position:sticky;top:0;background:linear-gradient(var(--paper) 72%,transparent);padding:26px 32px 18px;display:flex;justify-content:space-between;align-items:flex-start;z-index:1}
+.m-head h2{font-family:var(--serif);font-weight:400;font-size:30px;letter-spacing:.16em;margin:0}
+.m-head p{margin:6px 0 0;font-size:12px;color:var(--mute);letter-spacing:.12em}
+.m-close{width:36px;height:36px;border-radius:50%;font-size:20px;line-height:1;color:var(--mute);transition:background .3s,color .3s}
+.m-close:hover{background:color-mix(in srgb,var(--ink) 7%,transparent);color:var(--ink)}
+.m-body{padding:4px 32px 48px}
+.m-sec{padding:20px 0;border-top:1px solid color-mix(in srgb,var(--ink) 12%,transparent)}
+.m-sec h3{font-family:var(--serif);font-weight:400;font-size:16px;letter-spacing:.18em;margin:0 0 12px;display:flex;align-items:baseline;gap:10px}
+.m-sec h3 small{font-family:var(--sans);font-size:11px;color:var(--mute);letter-spacing:.08em}
+.m-sec p{font-size:14px;line-height:1.95;margin:0 0 10px}
+.m-sec .q{font-family:var(--serif);color:var(--mute);font-size:13.5px}
+.m-hou{margin:0 0 16px}
+.m-hou b{font-family:var(--serif);font-weight:400;font-size:15px;letter-spacing:.08em}
+.m-hou b span{font-family:var(--sans);font-size:11px;color:var(--mute);margin-right:8px}
+.m-hou p{margin:4px 0 0;font-size:13.5px}
+.m-hou .now{color:var(--mute);font-size:12.5px}
+.m-poem{font-family:var(--serif);font-size:17px!important;letter-spacing:.06em}
+.m-src a{color:var(--mute);font-size:12.5px;margin-right:14px}
+.m-sec>*{opacity:0;transform:translateY(10px)}
+#drawer.show .m-sec>*{opacity:1;transform:none;transition:opacity .7s ease var(--dl),transform .9s var(--out) var(--dl)}
+
+/* 详情入场：逐项浮现 */
+.rv{opacity:0;transform:translateY(18px);filter:blur(5px)}
+#detail.in .rv{opacity:1;transform:none;filter:none;transition:opacity .8s ease var(--dl),transform 1s var(--out) var(--dl),filter .8s ease var(--dl)}
+.fly{position:fixed;left:0;top:0;z-index:5;font-family:var(--serif);white-space:nowrap;line-height:1;transform-origin:0 0;pointer-events:none;color:var(--sun-ink)}
+
+/* 左下角工具栏：音乐 + 衣橱，同一条纸色细线胶囊 */
+.dock{position:fixed;left:var(--edge);bottom:24px;z-index:6;display:flex;align-items:center;padding:2px;border:1px solid color-mix(in srgb,var(--ink) 18%,transparent);border-radius:30px;background:color-mix(in srgb,var(--paper) 90%,transparent)}
+.dock>button{position:relative;display:flex;align-items:center;gap:5px;font-size:11px;letter-spacing:.1em;color:var(--mute);padding:5px 10px 5px 8px;border-radius:24px;transition:color .3s,background .3s}
+.dock>button:hover{color:var(--ink);background:color-mix(in srgb,var(--ink) 7%,transparent)}
+.dock>button svg{width:14px;height:14px}
+.dock-sep{width:1px;height:12px;background:color-mix(in srgb,var(--ink) 16%,transparent)}
+.music-toggle[hidden]+.dock-sep{display:none}
+.music-toggle .off{display:none}
+.music-toggle[aria-pressed="false"] .on{display:none}
+.music-toggle[aria-pressed="false"] .off{display:inline}
+.music-toggle[aria-pressed="false"]{opacity:.75}
+@media (max-width:820px){.dock{bottom:16px}.dock>button{padding:5px 9px 5px 7px}}
+
+/* AI 入口在两个视图都可用 */
+.chat-launcher{z-index:6!important}
+
+@media (max-width:820px){
+  header{padding:16px var(--edge)}.brand-name{font-size:18px}.brand-sub{font-size:10.5px;letter-spacing:.1em}.brand svg{width:24px;height:25.5px}.brand-tx{gap:6px}
+  .d-body{grid-template-columns:1fr;gap:6px;align-items:start;padding-bottom:110px}
+  .d-art{order:-1;max-width:520px}
+  .d-name{font-size:56px;margin-top:0}
+  .d-origin{font-size:15.5px}
+  .pn button{padding:8px 10px;font-size:13px}
+  .wash{inset:-4% -3%;width:106%;height:108%}
+  #drawer{inset:auto 0 0 0;width:100%;height:86svh;border-radius:22px 22px 0 0;transform:translateY(100%);box-shadow:0 -20px 50px rgba(48,73,61,.12)}
+  .m-head{padding:22px 24px 14px}.m-body{padding:4px 24px 40px}
+  .hint{bottom:auto;top:calc(50% + var(--S)/2 + 34px);font-size:12px}
+}
+@media (prefers-reduced-motion:reduce){
+  .wash *{animation:none!important}.wash .brush{transition:none!important}
+  #drawer,#drawer .m-sec>*{transition:none!important}
+  #detail.in .rv{transition:none}
+}
+</style>
+<link rel="stylesheet" href="scenes.css"><script src="scenes.js"></script><script src="knowledge.js"></script>
+<link rel="stylesheet" href="wardrobe.css"><script src="wardrobe.js"></script>
+<link rel="stylesheet" href="games.css"><script src="games.js"></script><script src="games-spring.js"></script><script src="games-summer.js"></script><script src="games-autumn.js"></script><script src="games-winter.js"></script>
+<link rel="stylesheet" href="chat.css"><script src="chat.js" defer></script>
+<script src="music/music.js"></script>
+</head><body>
+<header><div class="brand"><svg viewBox="4.3 2.6 31.4 33.4" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><circle cx="20" cy="20" r="15"/><circle cx="20" cy="5" r="2.4" fill="#c9a06a" stroke="none"/></svg><div class="brand-tx"><span class="brand-name">时节有信</span><span class="brand-sub">看花开鸟来，古人顺着自然过日子</span></div></div></header>
+
+<main id="home" aria-label="二十四节气轮盘">
+  <div id="wheel">
+    <svg id="ringSvg" aria-hidden="true"><g id="rot"></g></svg>
+    <div id="terms" role="list" aria-label="二十四节气"></div>
+    <div class="center">
+      <div class="c-date" id="cDate"></div>
+      <h1 class="c-term" id="cTerm"></h1>
+      <p class="c-hou" id="cHou"></p>
+      <button class="enter" id="enterToday"></button>
+    </div>
+  </div>
+  <p class="hint">点击任意节气进入</p>
+</main>
+
+<section id="detail" hidden aria-live="polite">
+  <div class="d-top">
+    <button class="back" id="back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="3.5" r="1.6" fill="currentColor" stroke="none"/></svg>回到轮盘</button>
+    <div class="pn"><button id="prevT"></button><button id="nextT"></button></div>
+  </div>
+  <div class="d-body">
+    <div class="d-text">
+      <div class="d-meta rv" id="dMeta"></div>
+      <h2 class="d-name" id="dName"></h2>
+      <div class="d-pinyin rv" id="dPinyin"></div>
+      <p class="d-origin rv" id="dOrigin"></p>
+      <ul class="hou rv" id="dHou" aria-label="三候"></ul>
+      <div class="d-poem rv" id="dPoem"></div>
+      <button class="more-link rv" id="moreBtn" aria-haspopup="dialog">了解更多<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path d="M2 6h8M7 3l3 3-3 3"/></svg></button>
+    </div>
+    <div class="d-art rv" id="dArt">
+      <svg class="wash" id="wash" viewBox="0 0 700 560" preserveAspectRatio="none" aria-hidden="true"></svg>
+      <div class="scene-slot" id="sceneSlot"></div>
+      <p class="caption" id="caption"></p>
+      <button class="play-chip" id="playBtn" type="button" hidden><svg viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M3 1.5v9l7.5-4.5z"/></svg><span></span></button>
+    </div>
+  </div>
+</section>
+
+<dialog id="drawer" aria-labelledby="mTitle"><div class="m-head"><div><h2 id="mTitle"></h2><p id="mSub"></p></div><button class="m-close" id="mClose" aria-label="关闭">×</button></div><div class="m-body" id="mBody"></div></dialog>
+<button id="chatLauncher" class="chat-launcher gong-launcher" aria-label="问问拱拱：和拱拱聊节气" aria-expanded="false" aria-controls="chatPanel"><span class="gong-tip" aria-hidden="true"><span id="gongSay">我是拱拱，节气的事都能问我</span></span><img data-gong src="ip/gong.svg" alt="" width="200" height="200"></button>
+<div class="dock" role="group" aria-label="音乐与衣橱"><button id="musicToggle" class="music-toggle" type="button" aria-pressed="true" aria-label="背景音乐：开"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" aria-hidden="true"><path d="M6 12.5V3.5l7-1.5v9"/><circle cx="4.3" cy="12.5" r="1.7"/><circle cx="11.3" cy="11" r="1.7"/><path class="off" d="M2 2l12 12"/></svg><span class="on">音乐 开</span><span class="off">音乐 关</span></button><i class="dock-sep" aria-hidden="true"></i><button id="wardrobeBtn" class="wd-btn" type="button" aria-label="拱拱的衣橱" aria-haspopup="dialog"><svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 12.5a3 3 0 1 1 4.2 2.8c-.8.4-1.2 1-1.2 1.9v1.3"/><path d="M20 18.5 6.5 27.5c-1 .7-.5 2 .7 2h25.6c1.2 0 1.7-1.3.7-2L20 18.5Z"/></svg><span>衣橱</span><i class="wd-badge" aria-hidden="true"></i></button></div>
+<div id="chatScrim" class="chat-scrim" hidden></div>
+<section id="chatPanel" class="chat-panel" role="dialog" aria-labelledby="chatTitle" hidden><div class="chat-heading"><span class="chat-avatar gong-avatar"><img data-gong src="ip/gong.svg" alt="" width="200" height="200"></span><div class="chat-title"><h2 id="chatTitle">拱拱</h2><p>只聊节气与相关传统文化</p></div><button id="chatReset" class="chat-icon" aria-label="开始新对话" title="开始新对话"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 9a8 8 0 1 1-1 7M5 4v5h5"/></svg></button><button id="chatClose" class="chat-icon chat-close" aria-label="收起聊天">×</button></div><div class="chat-context">正在看：<span id="chatContext"></span></div><div id="chatMessages" class="chat-messages" role="log" aria-label="节气对话" aria-live="polite" aria-relevant="additions text"></div><form id="chatForm" class="chat-compose"><div class="chat-input-wrap"><textarea id="chatInput" aria-label="向拱拱提问" placeholder="问问拱拱：节气、物候或相关习俗…" maxlength="1200" rows="2"></textarea><button id="chatSend" class="chat-send" type="submit" aria-label="发送问题" disabled>↑</button></div><p class="chat-footnote">回答由 AI 生成 · 民俗随地域而异</p></form></section>
+
+<script>
+const JIEQI = [
+{name:'立春',seq:1,season:'sp',date:'2月3日—5日',pinyin:'lì chūn',
+ meaning:'立，建始也。立春为二十四节气之首，春木之气始至。东风送暖，大地回春，一年由此开始。',
+ sanhou:[
+  ['初候','东风解冻','东风送暖，冻结的大地开始消融'],
+  ['二候','蛰虫始振','藏在土中的虫类慢慢苏醒、蠢动'],
+  ['三候','鱼陟负冰','河冰渐融，鱼儿游近水面，仿佛背着碎冰']],
+ custom:'迎春：天子率三公九卿到东郊迎春、祈求丰收，民间演为全民迎春；鞭打春牛劝农事；咬春：吃春饼、生菜，明代北京人无论贵贱都嚼萝卜。',
+ story:{tag:'咬春 · 春盘',paras:['立春要吃“春盘”，也叫“五辛盘”，用葱、姜、蒜、韭菜、萝卜五种辛辣生菜盛盘，取“迎新之义”，也借辛味发散五脏之气。唐代杜甫写下“春日春盘细生菜，忽忆两京梅发时”，说的就是这盘春天的味道。','后来春盘演变为春饼、春卷，明代北京人立春日“无论贵贱皆嚼萝卜”，叫做“咬春”——咬住春天，也就咬住了新一年的好光景。'],
+  quote:'杜甫《立春》：“春日春盘细生菜，忽忆两京梅发时。”'}},
+{name:'雨水',seq:2,season:'sp',date:'2月18日—20日',pinyin:'yǔ shuǐ',
+ meaning:'正月中，天一生水。立春后继之雨水，降雨渐多，冰雪消融，草木将萌，为可耕之候。',
+ sanhou:[
+  ['初候','獭祭鱼','水獭捕到鱼后陈列岸边，如先祭后食'],
+  ['二候','鸿雁来','大雁自南方飞回北方'],
+  ['三候','草木萌动','草木随地中阳气而抽出新芽']],
+ custom:'川西一带“拉保保”（给孩子认干爹干妈，祈愿顺利成长）；出嫁的女儿“回娘家”；女婿给岳父母送“罐罐肉”系红绸，称为“接寿”。',
+ story:{tag:'接寿 · 罐罐肉',paras:['雨水时节，川西一带流行“拉保保”：父母在这一天为孩子找干爹干妈，取“雨露滋润易生长”之意，希望孩子像田里的庄稼一样被雨水滋养、平安长大。','女婿则要在雨水日给岳父岳母送上一罐炖得酥烂的“罐罐肉”，罐口系上红绸带，寓意岳父母长寿延年，是为“接寿”。一碗肉，一头系着孝心，一头系着春天。'],
+  quote:'民谚：“雨水落了雨，阴阴沉沉到谷雨。”'}},
+{name:'惊蛰',seq:3,season:'sp',date:'3月5日—6日',pinyin:'jīng zhé',
+ meaning:'万物出乎震，震为雷。春雷乍动，惊醒蛰伏的虫兽，天气转暖，春耕自此开始。',
+ sanhou:[
+  ['初候','桃始华','桃花始开，阳和之气渐盛'],
+  ['二候','仓庚鸣','黄鹂（仓庚）婉转鸣啼'],
+  ['三候','鹰化为鸠','古人以为鹰化为布谷鸟（后世已辨其为附会）']],
+ custom:'惊蛰吃梨，取“离家创业”“努力荣祖”之意，亦应惊蛰润燥；二月二“龙抬头”，剃头、引龙、吃龙鳞饼、爆玉米花。',
+ story:{tag:'惊蛰吃梨 · 走西口',paras:['相传清代雍正年间，晋商渠百川要走西口，恰逢惊蛰日。父亲拿出一个梨让他吃下，叮嘱道：先祖贩梨创业，历尽艰辛，今日你走西口，吃梨是让你不忘先祖、努力创业、光宗耀祖。','渠百川后来经商致富，字号取名“长源厚”，走西口的人纷纷仿效，惊蛰吃梨便有了“离家创业”的寓意。至于二月二爆玉米花，则流传着“金豆开花，龙王抬头”的传说，人们用炒开花的玉米粒，请玉帝放出违旨降雨的龙王。'],
+  quote:'农谚：“到了惊蛰节，锄头不停歇。”'}},
+{name:'春分',seq:4,season:'sp',date:'3月20日—21日',pinyin:'chūn fēn',
+ meaning:'春分者，阴阳相半，故昼夜均而寒暑平。太阳直射赤道，昼夜等长，春季过半。',
+ sanhou:[
+  ['初候','玄鸟至','燕子自南方归来'],
+  ['二候','雷乃发声','阳气奋激而出，春雷始鸣'],
+  ['三候','始电','云薄漏日、日穿雨影，始见闪电']],
+ custom:'竖蛋：“春分到，蛋儿俏”；踏青放风筝，在风筝上写祝福；春分祭日——“春分祭日，秋分祭月，乃国之大典”。',
+ story:{tag:'春分竖蛋',paras:['春分这天昼夜均分，阴阳平衡，鸡蛋的重心也最容易找稳，于是民间有了“竖蛋”的游戏：把鸡蛋大头朝下，轻轻立起，谁立得稳、立得多，谁就讨了新一年的好彩头。','这一趣俗从中国传到世界各地，成了春分最俏皮的仪式。同一枚蛋，立在春分，便是立在春天最平稳的支点上。'],
+  quote:'《春秋繁露》：“春分者，阴阳相半也，故昼夜均而寒暑平。”'}},
+{name:'清明',seq:5,season:'sp',date:'4月4日—6日',pinyin:'qīng míng',
+ meaning:'万物生长此时，皆清洁而明净，故谓之清明。既是节气，也是祭祖扫墓、慎终追远的节日。',
+ sanhou:[
+  ['初候','桐始华','桐树开花'],
+  ['二候','田鼠化为鴽','田鼠隐遁，鴽鸟（鹌鹑类）渐多'],
+  ['三候','虹始见','雨后天青，始见彩虹']],
+ custom:'扫墓祭祖；踏青、荡秋千、放风筝、插柳；寒食禁火，吃冷食、青团。',
+ story:{tag:'介子推与寒食',paras:['相传春秋时，晋公子重耳流亡途中饿得奄奄一息，随臣介子推割下自己大腿上的肉煮汤救他。重耳即位为晋文公后，介子推却携母隐居绵山，宁死不出，终被火焚。','文公悔痛，下令在介子推遇难之日禁火寒食，是为寒食节；后人又取其后一日为清明。介子推临行留诗：“割肉奉君尽丹心，但愿主公常清明。”从此清明扫墓、慎终追远，绵延两千余年。'],
+  quote:'农谚：“清明前后，点瓜种豆。”'}},
+{name:'谷雨',seq:6,season:'sp',date:'4月19日—21日',pinyin:'gǔ yǔ',
+ meaning:'雨生百谷。谷雨为春季最后一个节气，降水明显增加，土膏脉动，播种移苗正当时。',
+ sanhou:[
+  ['初候','萍始生','水面浮萍开始生长'],
+  ['二候','鸣鸠拂其羽','布谷鸟振翅鸣叫，催人耕种'],
+  ['三候','戴胜降于桑','戴胜鸟落上桑树，提醒养蚕人家']],
+ custom:'谷雨祭海，渔民称“壮行节”，祈求出海平安；北方有“谷雨祭仓颉”庙会；喝谷雨茶、赏牡丹。',
+ story:{tag:'谷雨 · 仓颉造字',paras:['传说仓颉造字感动上天，降下一场谷子雨，天雨粟、鬼夜哭，人间从此有了文字与五谷。后人便在谷雨这天祭祀仓颉，河南等地至今保留“谷雨祭仓颉”的传统。','沿海渔民则在谷雨祭海，敲锣打鼓把供品抬到海边，祈求鱼虾满舱、出海平安，故谷雨也叫“壮行节”。'],
+  quote:'《月令七十二候集解》：“谷雨……土膏脉动，今又雨其谷于水也。”'}},
+{name:'立夏',seq:7,season:'su',date:'5月5日—7日',pinyin:'lì xià',
+ meaning:'斗指东南，维为立夏，万物至此皆长大。夏季开始，草木葳蕤，夏收作物进入生长后期。',
+ sanhou:[
+  ['初候','蝼蝈鸣','蝼蛄等虫在田间鸣叫'],
+  ['二候','蚯蚓出','蚯蚓感阳气钻出地面'],
+  ['三候','王瓜生','王瓜藤蔓迅速攀长']],
+ custom:'立夏“称人”（悬大秤称体重讨吉利）；杭州半山吃乌米饭、斗蛋、饮“七家茶”；周朝帝王率百官郊外“迎夏”。',
+ story:{tag:'立夏称人',paras:['相传三国时，诸葛亮临终嘱托孟获每年去看望蜀主阿斗。孟获依言，每年立夏都去拜望，并为阿斗称体重报平安，还扬言若晋武帝亏待阿斗就要起兵。于是晋武帝每年立夏用又糯又香的糯米豌豆饭款待阿斗，阿斗加倍进食，体重只增不减，日子过得清静安乐。','民间便留下“立夏称人”的习俗：房梁上悬起大秤，男女老少依次过秤，司秤人一面打秤花一面道吉言——称老人赞“秤花八十七，活到九十一”，称小孩祝“秤花一打二十三，小官人长大会出山”。'],
+  quote:'清代吴曼云《江乡节物词》小序：“杭俗，立夏日，悬大秤，男妇皆称之，以试一年肥瘠。”'}},
+{name:'小满',seq:8,season:'su',date:'5月20日—22日',pinyin:'xiǎo mǎn',
+ meaning:'小满者，物至于此小得盈满。麦粒渐满而未熟；南方则雨水盈满，河湖渐满。',
+ sanhou:[
+  ['初候','苦菜秀','苦菜繁茂，可采而食'],
+  ['二候','靡草死','喜阴的靡草不胜阳气而枯'],
+  ['三候','麦秋至','麦子将熟，百谷之秋将至']],
+ custom:'江浙一带“祈蚕节”（小满为蚕神诞辰，养蚕人家祈丝）；吃苦菜、祭车神。',
+ story:{tag:'祈蚕节',paras:['小满相传是蚕神诞辰。农耕时代“男耕女织”，南方以蚕丝为织，江浙养蚕极为兴盛。蚕最娇气，怕风怕寒怕湿，于是小满这天，蚕妇们设供祭拜蚕神，祈求茧多丝长、桑叶丰茂。','小满的“满”也有两种说法：南方指雨水盈满，北方指麦粒饱满。农谚说“小满不满，干断田坎”，小满时的雨水盈缺，关系着芒种能否栽插水稻，也牵动着一整年的收成。'],
+  quote:'民谚：“小满不满，干断田坎；小满不满，芒种不管。”'}},
+{name:'芒种',seq:9,season:'su',date:'6月5日—7日',pinyin:'máng zhòng',
+ meaning:'有芒之种谷可稼种。北方收麦、南方插秧，一年中最忙的“忙种”时节。',
+ sanhou:[
+  ['初候','螳螂生','螳螂破壳而出'],
+  ['二候','鵙始鸣','伯劳鸟开始在枝头鸣叫'],
+  ['三候','反舌无声','反舌鸟（百舌）停止鸣叫']],
+ custom:'送花神（芒种一过众花皆卸，为花神饯行）；安苗祭、煮青梅。',
+ story:{tag:'芒种送花神',paras:['芒种一过，群芳摇落，花神退位，人间要隆重地为她饯行。《红楼梦》第二十七回写大观园的女孩们：或用花瓣柳枝编成轿马，或用绫锦纱罗叠成干旄旌幢，用彩线系了，挂满每一棵树、每一枝花，满园里绣带飘飘、花枝招展——那是给花神送行的仪式。','古人借一场饯行，表达对草木流转的亲近与感念。芒种是播种的节气，也是送别春天的节气。'],
+  quote:'《红楼梦》：“言芒种一过，便是夏日了，众花皆卸，花神退位，须要饯行。”'}},
+{name:'夏至',seq:10,season:'su',date:'6月21日—22日',pinyin:'xià zhì',
+ meaning:'日北至，日长之至，日影短至。阳气至极，白昼一年最长，此后一阴始生。',
+ sanhou:[
+  ['初候','鹿角解','鹿属阳兽，感阴气而角脱落'],
+  ['二候','蜩始鸣','蝉（知了）开始鸣叫'],
+  ['三候','半夏生','药用植物半夏生于夏至前后']],
+ custom:'“冬至馄饨夏至面”，北方吃凉面（冷淘面）；无锡吃馄饨；夏至祭神祈求灾消年丰。',
+ story:{tag:'夏至吃面',paras:['夏至阳气最盛，新麦登场，古人磨面做成面条，过水而食，清爽消暑。清代《帝京岁时纪胜》说，北京人夏至家家吃“冷淘面”，各地游历京师的人都说“京师的冷淘面爽口适宜，天下无比”。','无锡人则兴吃馄饨——馄饨形如鸡卵、颇似天地浑沌之象，取“浑沌”谐音。老辈人说“夏至吃馄饨，热天不疰夏”，吃下一碗，求得暑夏平安；宋人相信吃了它可得聪明，连宫廷里都有应节的“夏至馄饨”。'],
+  quote:'俗语：“冬至馄饨夏至面。”'}},
+{name:'小暑',seq:11,season:'su',date:'7月6日—8日',pinyin:'xiǎo shǔ',
+ meaning:'暑，热也，就热之中分为大小，月初为小。小暑至，温风扑面，出梅入伏。',
+ sanhou:[
+  ['初候','温风至','热风开始吹拂大地'],
+  ['二候','蟋蟀居壁','蟋蟀羽翼未成，藏于墙脚'],
+  ['三候','鹰始挚','幼鹰感阴气，开始练习搏击']],
+ custom:'六月六“百索子撂上屋”；食新尝新米、晒书晒衣。',
+ story:{tag:'百索子撂上屋',paras:['端午节清晨，大人会在孩子手腕、脚腕、脖子上拴五色丝线，称为“百索子”，据说可避蛇蝎毒虫。到了六月六小暑前后，孩子们要把戴了一个月的百索子撂上屋顶。','这是为什么？相传牛郎织女被银河相隔，一年只等七月初七相会，却无渡船。孩子们便把五色线撂上屋，让喜鹊衔去，在银河上架起一座彩虹样的桥，好让牛郎织女团圆。一根丝线，牵着一份最温柔的心愿。'],
+  quote:'俗谚：“六月六，百索子撂上屋。”'}},
+{name:'大暑',seq:12,season:'su',date:'7月22日—24日',pinyin:'dà shǔ',
+ meaning:'斯时天气甚烈于小暑，故名曰大暑。正值三伏中伏前后，是一年最热之时。',
+ sanhou:[
+  ['初候','腐草为萤','萤火虫从枯草中化出（古人观察附会）'],
+  ['二候','土润溽暑','土地潮湿，天气闷热'],
+  ['三候','大雨时行','时常有大雷雨，暑湿渐消']],
+ custom:'浙江椒江“送大暑船”；台湾吃凤梨（闽南语谐“旺来”）；饮伏茶、晒伏姜。',
+ story:{tag:'送大暑船',paras:['清代同治年间，浙江台州椒江葭芷一带大暑时节常有疫病流行，人们认为是五位凶神作祟，便在江边建五圣庙，于大暑日用特制木船装载供品送至椒江口外，名为“送大暑船”，意即送走瘟疫、祈求平安。','后来它演变成盛大的渔休节庆：大暑当天，人山人海，人们把一艘制作精美的大纸船隆重送往江边，鞭炮齐鸣，渔轮列队护送出海，口中念着“送暑平安”。'],
+  quote:'《月令七十二候集解》：“大暑……斯时天气甚烈于小暑，故名曰大暑。”'}},
+{name:'立秋',seq:13,season:'au',date:'8月7日—9日',pinyin:'lì qiū',
+ meaning:'秋，揫也，物于此而揫敛也。秋季开始，暑去凉来，禾谷渐熟，万物收敛。',
+ sanhou:[
+  ['初候','凉风至','凉风（西南凄风）始来'],
+  ['二候','白露降','清晨地气凝为白露'],
+  ['三候','寒蝉鸣','寒蝉（小而青赤色）鸣叫']],
+ custom:'咬秋（立秋吃西瓜免腹泻）；贴秋膘犒劳苦夏；商洛竹林关一带“摸秋”。',
+ story:{tag:'咬秋 · 贴秋膘',paras:['立秋日吃西瓜叫“咬秋”，清代《津门纪略》说“立秋时食瓜，曰咬秋，可免腹泻”，《诗经》里“七月食瓜”正是此意。北方人还要“贴秋膘”，用炖肉犒劳苦夏消瘦的身体。','陕西商洛一带则有“摸秋”之俗：婚后未育的妇女在小姑陪伴下，秋夜到瓜架豆棚下暗中摸瓜摘豆，摸得南瓜（谐“男”）寓意得子，摸得豆角则寓意平安。一场夜里的摸索，摸的是丰收，也是心愿。'],
+  quote:'《津门纪略》：“立秋时食瓜，曰咬秋，可免腹泻。”'}},
+{name:'处暑',seq:14,season:'au',date:'8月22日—24日',pinyin:'chǔ shǔ',
+ meaning:'处，止也，暑气至此而止。暑热渐收，秋意初显，五谷待熟。',
+ sanhou:[
+  ['初候','鹰乃祭鸟','鹰捕鸟陈列如祭，示报本'],
+  ['二候','天地始肃','天地间始现肃杀之气'],
+  ['三候','禾乃登','稷为五谷之长，首熟此时']],
+ custom:'放河灯、中元祭祖；沿海开渔节千帆出海；吃鸭子（“处暑送鸭，无病各家”）。',
+ story:{tag:'处暑开渔',paras:['“处暑无三日，新凉直万金。”暑气既止，海面风浪渐平，渔民迎来开渔季。沿海各地举行开渔节，千帆竞发、百舸出海，祈愿鱼虾满舱、平安归来。','民间亦有处暑吃鸭子的讲究——“处暑送鸭，无病各家”。老鸭性凉，正合润燥时节；一碗老鸭汤下肚，秋意与好意一同落胃。'],
+  quote:'民谚：“处暑十八盆，白露勿露身。”'}},
+{name:'白露',seq:15,season:'au',date:'9月7日—9日',pinyin:'bái lù',
+ meaning:'水土湿气凝而为露，秋属金，金色白，故曰白露。天气转凉，露凝而白。',
+ sanhou:[
+  ['初候','鸿雁来','鸿雁自北向南迁徙'],
+  ['二候','玄鸟归','燕子南归'],
+  ['三候','群鸟养羞','群鸟储食备冬（羞即粮食）']],
+ custom:'喝白露茶、饮白露米酒；收清露（山东临朐采豆棵露水称“龙的汗水”）；太湖祭禹王。',
+ story:{tag:'白露收清露',paras:['白露时节，草木叶尖凝起晶莹的露珠，古人认为这是天地精华。山东临朐一带，八月初一要在豆棵上采集露水贮存起来，称为“龙的汗水”，用来做饭可医百病。','文人雅士则取露煮茶，所谓“白露茶”——经过春夏，茶树正当味醇之时。一杯白露茶，喝下的是整个秋天的清气。'],
+  quote:'《月令七十二候集解》：“水土湿气凝而为露，秋属金，金色白，白者露之色，而气始寒也。”'}},
+{name:'秋分',seq:16,season:'au',date:'9月22日—24日',pinyin:'qiū fēn',
+ meaning:'秋分者，阴阳相半，故昼夜均而寒暑平。太阳再次直射赤道，秋色平分。',
+ sanhou:[
+  ['初候','雷始收声','雷于二月阳中发声，八月阴中收声'],
+  ['二候','蛰虫坯户','虫类培土封洞，准备蛰伏'],
+  ['三候','水始涸','湖泊河流水量渐少']],
+ custom:'祭月（“春分祭日，秋分祭月”）；竖蛋；吃秋菜（野苋菜滚汤，“秋汤灌脏”）。',
+ story:{tag:'秋分祭月',paras:['古时“春分祭日，秋分祭月，乃国之大典”。秋分日，天子设坛祭月，祈求国泰民安；民间则讲究竖蛋与吃秋菜。','岭南人家采野苋菜与鱼片滚成“秋汤”，俗谚说“秋汤灌脏，洗涤肝肠，阖家老少，平安健康”。秋分平分昼夜，也平分了秋色，家家户户在清辉里祈求圆满。'],
+  quote:'《帝京岁时纪胜》：“春分祭日，秋分祭月，乃国之大典，士民不得擅祀。”'}},
+{name:'寒露',seq:17,season:'au',date:'10月8日—9日',pinyin:'hán lù',
+ meaning:'露气寒冷，将凝结也。深秋已至，寒意显露，鸿雁南飞，菊有黄华。',
+ sanhou:[
+  ['初候','鸿雁来宾','大雁排阵南飞，后至者为“宾”'],
+  ['二候','雀入大水为蛤','古人以为雀入海化为蛤（附会）'],
+  ['三候','菊有黄华','菊花此时开得正好']],
+ custom:'重阳登高、喝菊花酒、插茱萸；吃芝麻、品螃蟹。',
+ story:{tag:'重阳登高',paras:['相传东汉时汝南一带瘟魔为害，有个叫桓景的人拜道士费长房学法术。费长房告诉他，九月初九瘟魔又要害人，须“九日离家登高，把茱萸装入红布袋扎在胳膊上，喝菊花酒”。','桓景遍告乡亲，九月九日携众人登高避祸。瘟魔被菊花酒的刺鼻与茱萸的香气所阻，难以近身，桓景挥剑将它斩于山下。自此重阳登高、饮菊花酒流传至今——寒露时节秋高气爽，正是登高望远的好光景。'],
+  quote:'王维《九月九日忆山东兄弟》：“遥知兄弟登高处，遍插茱萸少一人。”'}},
+{name:'霜降',seq:18,season:'au',date:'10月23日—24日',pinyin:'shuāng jiàng',
+ meaning:'气肃而凝，露结为霜矣。霜降杀百草，秋收已毕，时令由收转入藏。',
+ sanhou:[
+  ['初候','豺乃祭兽','豺捕兽陈列如祭，杀气渐盛'],
+  ['二候','草木黄落','草木枯黄凋落'],
+  ['三候','蛰虫咸俯','蛰虫垂下头，准备冬眠']],
+ custom:'吃柿子（“霜降吃柿子，不会流鼻涕”）；赏菊、进补；霜降后斗鹌鹑（旧俗）。',
+ story:{tag:'霜降吃柿子',paras:['霜降前后柿子正红，民间讲究“霜降吃柿子，不会流鼻涕”，也有“霜降吃丁柿”的说法，取个应季应景的好彩头。《礼记·月令》说“霜始降，则百工休”，秋收结束，人们歇下来进补迎冬。','明清时北京人霜降后还兴斗鹌鹑，“笼于袖中，若捧珍宝”，是旧时秋末的一桩乐事。'],
+  quote:'《诗经·豳风》：“九月肃霜，十月涤场。”'}},
+{name:'立冬',seq:19,season:'wi',date:'11月7日—8日',pinyin:'lì dōng',
+ meaning:'立，建始也；冬，终也，万物收藏也。冬季开始，水始冰、地始冻。',
+ sanhou:[
+  ['初候','水始冰','水面开始结冰'],
+  ['二候','地始冻','土地开始冻结'],
+  ['三候','雉入大水为蜃','古人以为野鸡入海化为大蛤（附会）']],
+ custom:'送寒衣（十月初一寒衣节，焚烧五色纸为先人送御寒衣物）；吃饺子（“交子”之时）；立冬补冬、酿黄酒。',
+ story:{tag:'送寒衣 · 孟姜女',paras:['农历十月初一是“送寒衣节”。为免先人在阴间挨冷受冻，这一天人们焚烧五色纸，为其送去御寒的衣物，寄托今人对故人的怀念。这习俗源自“孟姜女哭长城”的传说。','相传秦时范喜良被征去修长城，其妻孟姜女千里送寒衣，到长城脚下才知丈夫已累死、尸骨埋于墙下。她放声痛哭，城墙崩塌，露出白骨。孟姜女守着白骨哭了七天七夜，要将寒衣烧掉，只见寒衣缓缓飘起，围着白骨转了三圈，稳稳落下，覆在其上。'],
+  quote:'民谚：“立冬不起菜，必定要受害。”'}},
+{name:'小雪',seq:20,season:'wi',date:'11月22日—23日',pinyin:'xiǎo xuě',
+ meaning:'天地积阴，温则为雨，寒则为雪。时言小者，寒未深而雪未大也。',
+ sanhou:[
+  ['初候','虹藏不见','彩虹藏而不见'],
+  ['二候','天气上升地气下降','阳气上升、阴气下降，天地不通'],
+  ['三候','闭塞而成冬','万物闭塞，转入严冬']],
+ custom:'腌菜腌肉（“小雪腌菜，大雪腌肉”）；南方打糍粑、晒鱼干。',
+ story:{tag:'小雪腌菜',paras:['小雪前后，气温骤降而天气干燥，正是腌菜的好时候。“小雪腌菜，大雪腌肉”，老辈人家家备下大缸，把雪里蕻、萝卜、白菜一层层码盐压实，一冬的佐餐就有了着落。','南方人家则打糍粑、晒鱼干，把丰收的味道慢慢贮进时光里——这是农耕时代“冬藏”最朴素的模样。'],
+  quote:'民谚：“小雪腌菜，大雪腌肉。”'}},
+{name:'大雪',seq:21,season:'wi',date:'12月6日—8日',pinyin:'dà xuě',
+ meaning:'大者盛也，至此而雪盛矣。降雪渐多，仲冬开始。',
+ sanhou:[
+  ['初候','鹖鴠不鸣','寒号鸟（鹖鴠）不再鸣叫'],
+  ['二候','虎始交','老虎感阳气而开始求偶'],
+  ['三候','荔挺出','兰草（荔）抽出新芽']],
+ custom:'大雪腌肉（“未曾过年，先肥屋檐”）；喝红薯粥进补；观赏封河。',
+ story:{tag:'大雪腌肉',paras:['俗话说“小雪腌菜，大雪腌肉”。大雪一到，家家门口挂起一条条腊肉、香肠，在寒风里晾出红亮的光泽，屋檐下便有了过年的气象。','民间还讲究大雪进补——“冬天进补，开春打虎”。一碗热腾腾的红薯粥，或一锅羊肉汤，把寒冷挡在门外；北方大雪封河，孩子们在冰上嬉戏，一片雪国欢腾。'],
+  quote:'民谚：“瑞雪兆丰年。”'}},
+{name:'冬至',seq:22,season:'wi',date:'12月21日—23日',pinyin:'dōng zhì',
+ meaning:'日南至，日短之至，日影长至，故曰冬至。一阳来复，冬至大如年。',
+ sanhou:[
+  ['初候','蚯蚓结','蚯蚓蜷缩成结'],
+  ['二候','麋角解','麋鹿（阴兽）感阳气而角脱落'],
+  ['三候','水泉动','山中泉水开始涌动']],
+ custom:'数九（九九歌、九九消寒图）；北方吃饺子、南方吃汤圆；苏州冬至团（“肥冬瘦年”）；晋城半夜摔老南瓜。',
+ story:{tag:'冬至数九 · 消寒图',paras:['冬至是“一阳来复”之日，白昼最短。从这天起数九，每九天为一“九”，数到九九八十一天，寒冬便尽，春耕将至。古人画“九九消寒图”：一枝素梅八十一瓣，日染一瓣，“瓣尽而九九出”，胭脂红透，便是暖回之时；宫廷里则写九个九画字“亭前垂柳珍重待春風”，日描一笔，九天成一字，九九文成。','北方冬至吃饺子，南方吃汤圆；苏州人最重冬至节，前一日馈送“冬至团”，俗谓“肥冬瘦年”。山西晋城一带更有冬至夜半“摔老南瓜”之俗，相传是为纪念孔子避祸脱厄，一时间家家“嗵嗵”作响，如一场迎接春阳的鼓声。'],
+  quote:'《九九歌》：“一九二九不出手，三九四九冰上走，五九六九沿河看柳，七九河开，八九雁来，九九加一九，耕牛遍地走。”'}},
+{name:'小寒',seq:23,season:'wi',date:'1月5日—7日',pinyin:'xiǎo hán',
+ meaning:'小寒胜大寒，是一年最冷的时节之一。寒未极而气已深，雁北乡、鹊始巢。',
+ sanhou:[
+  ['初候','雁北乡','大雁开始向北迁移（先行的多为大雁父母）'],
+  ['二候','鹊始巢','喜鹊开始筑巢，为来年准备'],
+  ['三候','雉始雊','野鸡开始鸣叫']],
+ custom:'吃腊八粥（腊日驱寒，“腊鼓鸣，春草生”）；画梅消寒。',
+ story:{tag:'腊八粥 · 腊鼓',paras:['小寒临近腊月，古人在腊日击鼓驱寒，召唤阳春——“腊鼓鸣，春草生”。腊八这天，人们用黏米、豆果、杂粮熬一锅热腾腾的腊八粥，驱寒暖胃，也犒劳一年的辛劳。','文人雅士则在小寒画梅消寒：一枝素梅，日染一瓣，染满八十一瓣，窗外便已是春天。'],
+  quote:'民谚：“小寒大寒，冻成一团。”'}},
+{name:'大寒',seq:24,season:'wi',date:'1月20日—21日',pinyin:'dà hán',
+ meaning:'寒气之极，为全年最后一个节气。大寒一过，又是立春，一个新的轮回开始。',
+ sanhou:[
+  ['初候','鸡始乳','母鸡开始孵小鸡'],
+  ['二候','征鸟厉疾','鹰隼等猛禽迅猛捕食'],
+  ['三候','水泽腹坚','水域中央冻得坚实']],
+ custom:'尾牙祭、除尘扫年、备年货；“小寒大寒，杀猪过年”。',
+ story:{tag:'大寒迎年',paras:['“大寒小寒，冻成一团”，但大寒也是最热闹的时节——它紧挨着年关。人们扫尘除旧、贴窗花、备年货，南方商家办“尾牙宴”犒劳伙计，民间说“小寒大寒，杀猪过年”“过了大寒，又是一年”。','大寒是冬的终点，也是春的序曲：水泽冻到最坚，冰下已有春水涌动；母鸡开始孵小鸡，鹰隼正厉疾搏击——最冷处，已藏着最暖的生机。'],
+  quote:'民谚：“过了大寒，又是一年。”'}}
+];
+const DAY=86400000;
+const todayString=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+const dates2026=['02-04','02-18','03-05','03-20','04-05','04-20','05-05','05-21','06-05','06-21','07-07','07-23','08-07','08-23','09-07','09-23','10-08','10-23','11-07','11-22','12-07','12-22','01-05','01-20'];
+function sunLongitude(ms){const t=(ms/86400000+2440587.5-2451545)/36525;const l=280.46646+36000.76983*t+.0003032*t*t,m=(357.52911+35999.05029*t-.0001537*t*t)*Math.PI/180;const c=(1.914602-.004817*t-.000014*t*t)*Math.sin(m)+(.019993-.000101*t)*Math.sin(2*m)+.000289*Math.sin(3*m);return ((l+c-.00569-.00478*Math.sin((125.04-1934.136*t)*Math.PI/180))%360+360)%360}
+function startDate(y,i){if(y===2026)return Date.parse(y+'-'+dates2026[i]+'T00:00:00+08:00');let estimate=Date.UTC(y,i<22?Math.floor((i+2)/2):0,i<22?(i%2?19:4):i===22?5:20);const target=(315+i*15)%360;for(let n=0;n<5;n++){let dif=((sunLongitude(estimate)-target+540)%360)-180;estimate-=dif/.98564736*DAY}const str=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(estimate));return Date.parse(str+'T00:00:00+08:00')}
+function timeline(y){return [y-1,y,y+1].flatMap(yr=>JIEQI.map((_,i)=>({i,y:yr,t:startDate(yr,i)}))).sort((a,b)=>a.t-b.t)}
+(() => {
+const $ = id => document.getElementById(id);
+const NS = 'http://www.w3.org/2000/svg';
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const root = document.documentElement;
+const ORD = ['初候','二候','三候'];
+// 季节色只用于插图后面的水彩：主色 + 点染色 + 飘落物颜色
+const SEASON = [
+  {name:'春', wash:'#cfe2b6', dab:'#f1cfcf', mote:'#e6b3b6'},
+  {name:'夏', wash:'#c4e0d2', dab:'#efe1a8', mote:'#9cc4b4'},
+  {name:'秋', wash:'#efd4a4', dab:'#e7b48e', mote:'#d39a63'},
+  {name:'冬', wash:'#d9d5e6', dab:'#efe2d4', mote:'#b7bccd'}
+];
+const seasonOf = i => Math.floor(i/6);
+const fmtMD = ms => new Intl.DateTimeFormat('zh-CN',{timeZone:'Asia/Shanghai',month:'numeric',day:'numeric'}).format(new Date(ms));
+
+// ——— 今天在哪个节气、哪一候 ———
+const now = Date.now(), Y = Number(todayString().slice(0,4));
+const line = timeline(Y);
+const n0 = line.findIndex((x,i) => x.t <= now && line[i+1]?.t > now);
+const TODAY = {i: line[n0].i, hou: Math.min(2, Math.floor((now - line[n0].t)/(DAY*5))), start: line[n0].t, end: line[n0+1].t};
+function rangeOf(i) {
+  const k = line.findIndex((x,j) => x.i === i && j >= n0 - 12 && j <= n0 + 12 && Math.abs(x.t - now) < DAY*200);
+  const a = line[k], b = line[k+1];
+  return fmtMD(a.t) + '—' + fmtMD(b.t - DAY);
+}
+
+// ——— 背景音乐（music/music.js → window.ShijieMusic）———
+// 所有切换都交给引擎：它只做交叉淡化，不停止、不重播。音乐出错时不影响页面。
+const music = (fn, ...a) => { try { const M = window.ShijieMusic; if (M && M[fn]) return M[fn](...a); } catch (e) { console.warn('music', fn, e); } };
+if (window.ShijieMusic) {
+  window.ShijieMusic.init().catch(e => console.warn('music init', e));
+  // 浏览器自动播放限制：第一次 pointerdown / keydown 才能出声
+  // 解锁成功（引擎已 started）才移除监听；万一 manifest 还没到、第一次没解开，下一次点击再试
+  const unlock = () => Promise.resolve(music('unlock')).then(() => {
+    if (window.ShijieMusic.state.started) { document.removeEventListener('pointerdown', unlock, true); document.removeEventListener('keydown', unlock, true); }
+  }).catch(e => console.warn('music unlock', e));
+  document.addEventListener('pointerdown', unlock, true);
+  document.addEventListener('keydown', unlock, true);
+}
+// 音乐开关：状态存在 localStorage
+const MUSIC_KEY = 'shijie-music';
+let homeAt = -1e9;   // 最近一次回到转盘的时间
+function paintMusicBtn() {
+  const on = music('isEnabled') !== false, b = $('musicToggle');
+  b.setAttribute('aria-pressed', String(on)); b.setAttribute('aria-label', on ? '背景音乐：开（按键无音效），点击关闭音乐、改用按键音效' : '背景音乐：关（按键有音效），点击打开音乐');
+}
+try { if (localStorage.getItem(MUSIC_KEY) === 'off') music('setEnabled', false); } catch {}
+$('musicToggle').hidden = !window.ShijieMusic;
+$('musicToggle').onclick = () => { const on = music('toggle'); try { localStorage.setItem(MUSIC_KEY, on ? 'on' : 'off'); } catch {} paintMusicBtn(); };
+paintMusicBtn();
+
+// ——— 轮盘 ———
+let S, R, rot = 0, speed = 1, target = 1, last = performance.now();
+const DEG_PER_SEC = -360/300;               // 五分钟转一周，逆时针：下一个节气慢慢转到顶端
+const termBtns = JIEQI.map((j,i) => {
+  const b = document.createElement('button');
+  b.className = 'term' + (i === TODAY.i ? ' today' : '');
+  b.textContent = j.name; b.setAttribute('role','listitem');
+  b.setAttribute('aria-label', `${j.name}，${SEASON[seasonOf(i)].name}季${i === TODAY.i ? '，今天所在节气' : ''}`);
+  b.onclick = () => openTerm(i, b);
+  b.onmouseenter = b.onfocus = () => target = .08;
+  b.onmouseleave = b.onblur = () => target = 1;
+  // 音乐：悬停 / 键盘聚焦时预取该节气音轨 + 一声轻铃
+  b.addEventListener('pointerenter', () => music('hover', i));
+  // 返回转盘时代码会把焦点还给按钮，这次不算悬停，免得在“回落”音效后多一声铃
+  b.addEventListener('focus', () => { if (performance.now() - homeAt > 1500) music('hover', i); });
+  $('terms').appendChild(b); return b;
+});
+// 黄经刻度盘：每个节气 = 太阳在黄道上走 15°，每候 5°。立春 315°，春分 0°。
+const lonOf = i => (315 + i*15) % 360;
+const LT = lonOf(TODAY.i);                                        // 今天节气的黄经，放在正上方
+const SUN = sunLongitude(now);                                    // 今天太阳的实际黄经
+const screenDeg = lon => ((lon - LT + 360) % 360) - 90;           // 黄经 → 屏幕角（未加转动）
+const angleOf = i => rot + screenDeg(lonOf(i));
+const rad = d => d*Math.PI/180;
+const INK = '#30493d';
+
+function buildRing() {
+  const vw = innerWidth, vh = innerHeight, m = vw < 820;
+  S = Math.round(m ? Math.min(vw*.78, vh*.6) : Math.min(vh*.72, vw*.6));
+  R = S/2;
+  root.style.setProperty('--S', S + 'px');
+  root.style.setProperty('--fs', (m ? 12 : 15) + 'px');
+  const svg = $('ringSvg'), g = $('rot'); g.innerHTML = '';
+  const c = R, mk = (tag, a, p = g) => { const e = document.createElementNS(NS, tag); for (const k in a) e.setAttribute(k, a[k]); p.appendChild(e); return e; };
+  const pt = (r, deg) => [c + r*Math.cos(rad(deg)), c + r*Math.sin(rad(deg))];
+  const tick = (deg, r0, r1, w, o) => { const [x1,y1] = pt(r0, deg), [x2,y2] = pt(r1, deg); mk('line', {x1, y1, x2, y2, stroke:INK, 'stroke-width':w, opacity:o, 'stroke-linecap':'round'}); };
+  // 极简刻度：一道主圆 + 24 个节气点；二分二至稍长，作为四个基准方向
+  mk('circle', {cx:c, cy:c, r:R, fill:'none', stroke:INK, 'stroke-opacity':.55, 'stroke-width':1});
+  mk('circle', {cx:c, cy:c, r:R*.8, fill:'none', stroke:INK, 'stroke-opacity':.08, 'stroke-width':1});
+  for (let k = 0; k < 24; k++) {
+    const d = k*15, a = screenDeg(d), cardinal = d % 90 === 0;
+    if (cardinal) tick(a, R + 5, R - (m ? 9 : 12), 1.1, .6);
+    else { const [x,y] = pt(R, a); mk('circle', {cx:x, cy:y, r: m ? 1.6 : 2, fill:INK, opacity:.45}); }
+  }
+  // 太阳：本节气里已走过的一段弧 + 今天的位置
+  const a0 = screenDeg(LT), a1 = screenDeg(SUN), [sx,sy] = pt(R, a0), [ex,ey] = pt(R, a1);
+  mk('path', {d:`M${sx} ${sy} A${R} ${R} 0 0 1 ${ex} ${ey}`, fill:'none', stroke:'#c9a06a', 'stroke-width': m ? 2.4 : 3, 'stroke-linecap':'round'});
+  mk('circle', {cx:ex, cy:ey, r: m ? 15 : 20, fill:'url(#sg)'});
+  mk('circle', {cx:ex, cy:ey, r: m ? 5 : 6.5, fill:'#d4ae7c'});
+  if (!$('sg')) { const d = document.createElementNS(NS,'defs'); d.innerHTML = '<radialGradient id="sg"><stop offset="0" stop-color="#d6b07a" stop-opacity=".45"/><stop offset="1" stop-color="#d6b07a" stop-opacity="0"/></radialGradient>'; svg.prepend(d); }
+}
+function placeTerms() {
+  $('rot').setAttribute('transform', `rotate(${rot} ${R} ${R})`);
+  const off = R + (S < 400 ? 22 : 30);
+  termBtns.forEach((b,i) => { const a = rad(angleOf(i)); b.style.transform = `translate(${R + off*Math.cos(a)}px,${R + off*Math.sin(a)}px) translate(-50%,-50%)`; });
+}
+let spinning = true;
+function spin(t) {
+  const dt = Math.min(.05, (t - last)/1000); last = t;
+  speed += (target - speed)*(1 - Math.exp(-dt*3));
+  if (!reduce) rot += DEG_PER_SEC*speed*dt;
+  placeTerms();
+  if (spinning) requestAnimationFrame(spin);
+}
+
+// 中心：今天
+const tj = JIEQI[TODAY.i];
+$('cDate').textContent = '今天 ' + fmtMD(now);
+$('cTerm').textContent = tj.name;
+$('cHou').innerHTML = `<span>${ORD[TODAY.hou]}</span>${tj.sanhou[TODAY.hou][1]}`;
+$('enterToday').textContent = '进入' + tj.name;
+$('enterToday').onclick = () => openTerm(TODAY.i, $('cTerm'));
+
+// ——— 插图后的水彩：几笔宽刷 + 一点点染，边缘用噪声扰动成手刷效果 ———
+function seeded(n) { let s = n*9301 + 49297; return () => (s = (s*9301 + 49297) % 233280)/233280; }
+function washSVG(i) {
+  const s = SEASON[seasonOf(i)], r = seeded(i + 7), j = (a, b) => a + r()*(b - a);
+  const strokes = [
+    {d:`M${j(110,150)} ${j(280,320)} C ${j(220,260)} ${j(170,210)}, ${j(420,460)} ${j(150,190)}, ${j(580,610)} ${j(230,260)}`, w:j(150,175), c:s.wash, o:.62},
+    {d:`M${j(130,170)} ${j(360,390)} C ${j(260,300)} ${j(400,430)}, ${j(440,480)} ${j(390,420)}, ${j(590,620)} ${j(320,350)}`, w:j(110,135), c:s.wash, o:.5},
+    {d:`M${j(210,250)} ${j(215,240)} C ${j(300,330)} ${j(180,200)}, ${j(420,450)} ${j(190,210)}, ${j(520,550)} ${j(220,240)}`, w:j(70,90), c:s.wash, o:.45},
+    {d:`M${j(440,500)} ${j(140,170)} q ${j(30,40)} ${j(-14,-6)} ${j(60,80)} ${j(8,18)}`, w:j(46,60), c:s.dab, o:.7},
+    {d:`M${j(120,160)} ${j(420,440)} q ${j(40,60)} ${j(10,20)} ${j(90,110)} ${j(-6,4)}`, w:j(34,44), c:s.dab, o:.55}
+  ];
+  // 干笔飞白：几条细线沿主笔方向
+  const dry = [0,1,2].map(k => ({d:`M${j(150,190)} ${250 + k*40 + j(-6,6)} C ${j(260,300)} ${j(200,240) + k*30}, ${j(420,460)} ${j(200,240) + k*30}, ${j(560,600)} ${260 + k*36}`, w:j(3,7), c:s.wash, o:.55}));
+  const all = [...strokes, ...dry].map((p, k) => `<path class="brush" pathLength="1" d="${p.d}" stroke="${p.c}" stroke-width="${p.w.toFixed(1)}" style="--o:${p.o};--dl:${k*140}ms"/>`).join('');
+  const motes = Array.from({length:6}, () => `<g transform="translate(${(r() < .5 ? j(110,210) : j(500,600)).toFixed(0)} ${j(110,190).toFixed(0)})"><ellipse class="fall" rx="${j(3,5).toFixed(1)}" ry="${j(2,3).toFixed(1)}" fill="${s.mote}" opacity=".6" style="--d:${j(11,17).toFixed(1)}s;--dl:-${j(0,16).toFixed(1)}s;--dx:${j(-40,60).toFixed(0)}px;--r:${j(90,300).toFixed(0)}deg"/></g>`).join('');
+  // 中心留出纸色：颜色在四周晕开，线稿主体始终落在浅底上，不和水彩撞色
+  return `<defs><filter id="wf${i}" x="-20%" y="-20%" width="140%" height="140%"><feTurbulence type="fractalNoise" baseFrequency=".013" numOctaves="3" seed="${i+3}"/><feDisplacementMap in="SourceGraphic" scale="44"/><feGaussianBlur stdDeviation="1.4"/></filter>`
+    + `<radialGradient id="wg${i}" cx="50%" cy="52%" r="50%"><stop offset="0" stop-color="#fff" stop-opacity=".12"/><stop offset=".42" stop-color="#fff" stop-opacity=".22"/><stop offset=".78" stop-color="#fff" stop-opacity="1"/></radialGradient>`
+    + `<mask id="wm${i}" maskUnits="userSpaceOnUse" x="0" y="0" width="700" height="560"><rect width="700" height="560" fill="url(#wg${i})"/></mask></defs>`
+    + `<g mask="url(#wm${i})"><g filter="url(#wf${i})" fill="none" stroke-linecap="round" stroke-linejoin="round">${all}</g></g>${motes}`;
+}
+function paintWash(i, delay = 0) {
+  const w = $('wash'); w.classList.remove('on'); w.innerHTML = washSVG(i);
+  if (reduce) { w.classList.add('on'); return; }
+  void w.getBoundingClientRect();
+  setTimeout(() => requestAnimationFrame(() => w.classList.add('on')), delay);
+}
+// ——— 详情内容 ———
+let cur = -1, curHou = 0, curSeason = -1;
+function sceneHTML(i, h) { return window.SeasonScenes.render(i, h); }
+function fill(i) {
+  const j = JIEQI[i], K = window.SeasonKnowledge.get(i, 0), s = SEASON[seasonOf(i)];
+  cur = i; curHou = i === TODAY.i ? TODAY.hou : 0;
+  paintWash(i, 380);
+  $('dMeta').textContent = `${rangeOf(i)} · 太阳黄经 ${lonOf(i)}°`;
+  $('dName').textContent = j.name;
+  $('dPinyin').textContent = j.pinyin || '';
+  $('dOrigin').textContent = K.origin;
+  $('dHou').innerHTML = j.sanhou.map((h,k) => {
+    const sum = window.SeasonKnowledge.get(i, k).phase.summary;
+    const legend = /附会|古人以为|传说|联想/.test(h[2]) ? '<span class="tag">古人的想象</span>' : '';
+    return `<li><button data-h="${k}" aria-pressed="${k === curHou}"><span class="o">${h[0]}</span><span class="n">${h[1]}${legend}</span><span class="x">${sum}</span></button></li>`;
+  }).join('');
+  $('dHou').querySelectorAll('button').forEach(b => b.onclick = () => pickHou(+b.dataset.h));
+  $('dPoem').innerHTML = `<p class="poem">${K.poem.lines}</p><p class="by">${K.poem.author}《${K.poem.title}》</p>`;
+  $('prevT').textContent = '‹ ' + JIEQI[(i+23)%24].name;
+  $('nextT').textContent = JIEQI[(i+1)%24].name + ' ›';
+  $('prevT').setAttribute('aria-label', '上一个节气：' + JIEQI[(i+23)%24].name);
+  $('nextT').setAttribute('aria-label', '下一个节气：' + JIEQI[(i+1)%24].name);
+  setGame(i);
+  showScene(false);
+  document.title = `${j.name}｜时节有信`;
+  document.dispatchEvent(new Event('seasonchange'));
+}
+// ——— 节气小游戏入口：点插图或“玩一玩”进入 ———
+function setGame(i) {
+  const G = window.SeasonGames, info = G && G.info(i), b = $('playBtn');
+  b.hidden = !info; $('dArt').classList.toggle('has-game', !!info);
+  if (info) { b.querySelector('span').textContent = '玩一玩 · ' + info.title; b.setAttribute('aria-label', `进入小游戏：${JIEQI[i].name} · ${info.title}`); }
+}
+let inGame = false;   // 保证 gameEnter / gameExit 成对出现
+function openGame() {
+  if (inGame || !window.SeasonGames || !window.SeasonGames.has(cur)) return;
+  const opened = window.SeasonGames.open(cur, { onExit: () => {
+    // 【游戏结束】音乐挂点：games.js 的 close()（返回按钮、Esc、“回到节气”等）都会走到这里
+    // 只恢复音量，不换音轨 → 继续播放当前节气的音乐
+    if (inGame) { inGame = false; music('gameExit'); }
+    $('playBtn').focus({preventScroll:true});
+  } });
+  // 【游戏开始】音乐挂点：只有游戏真的打开了才压低音乐
+  if (opened) { inGame = true; music('gameEnter'); }
+}
+$('dArt').addEventListener('click', openGame);
+function showScene(animate) {
+  const slot = $('sceneSlot'), j = JIEQI[cur];
+  const put = () => { slot.innerHTML = sceneHTML(cur, curHou); $('caption').textContent = `${ORD[curHou]} · ${j.sanhou[curHou][1]}`; window.SeasonScenes.observe(); };
+  if (!animate || reduce) { put(); return; }
+  slot.animate([{opacity:1, transform:'none', filter:'blur(0)'},{opacity:0, transform:'scale(.97)', filter:'blur(6px)'}], {duration:320, easing:'ease-in', fill:'forwards'}).onfinish = () => {
+    put(); slot.animate([{opacity:0, transform:'scale(1.03)', filter:'blur(6px)'},{opacity:1, transform:'none', filter:'blur(0)'}], {duration:620, easing:'cubic-bezier(.16,.84,.3,1)', fill:'forwards'});
+  };
+}
+function pickHou(h) {
+  if (h === curHou) return;
+  music('hou', h);
+  curHou = h;
+  $('dHou').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', +b.dataset.h === h));
+  showScene(true);
+  document.dispatchEvent(new Event('seasonchange'));
+}
+function stagger() {
+  [...$('detail').querySelectorAll('.rv')].forEach((e,k) => e.style.setProperty('--dl', (k*90) + 'ms'));
+}
+
+// ——— 转场：节气放大进入 ———
+let busy = false;
+function openTerm(i, btn) {
+  if (busy) return; busy = true;
+  music('term', i, {cue:'enter'});   // 与 1.05 秒放大转场同时开始
+  target = 0; speed = 0;
+  const r = btn.getBoundingClientRect(), ox = r.left + r.width/2, oy = r.top + r.height/2;
+  fill(i);
+  document.body.classList.add('in-detail');
+  const D = $('detail'); D.hidden = false; D.scrollTop = 0; D.classList.remove('in'); stagger();
+  const title = $('dName'); title.style.opacity = 0;
+  const tr = title.getBoundingClientRect();
+  // 轮盘上同名的字（节气按钮，以及今天的中心大字）在起飞瞬间隐藏，避免一字两份
+  const twins = [termBtns[i], ...(i === TODAY.i ? [$('cTerm')] : [])];
+  const done = () => { twins.forEach(e => e.style.visibility = ''); D.classList.add('in'); title.style.opacity = 1; busy = false; spinning = false; history.replaceState(null, '', '#' + JIEQI[i].name); $('back').focus({preventScroll:true}); };
+  if (reduce) { done(); $('home').style.visibility = 'hidden'; return; }
+
+  const home = $('home');
+  home.style.setProperty('--zx', ox + 'px'); home.style.setProperty('--zy', oy + 'px');
+  home.animate([{transform:'scale(1)', opacity:1, filter:'blur(0)'},{transform:'scale(1.9)', opacity:0, filter:'blur(5px)'}], {duration:1050, easing:'cubic-bezier(.5,0,.25,1)', fill:'forwards'});
+  D.animate([{opacity:0},{opacity:1}], {duration:750, delay:380, easing:'cubic-bezier(.33,0,.2,1)', fill:'backwards'});
+
+  // 节气名从轮盘飞到标题位置
+  const fly = document.createElement('div'); fly.className = 'fly'; fly.textContent = JIEQI[i].name;
+  const fsTo = parseFloat(getComputedStyle(title).fontSize), fsFrom = parseFloat(getComputedStyle(btn).fontSize);
+  fly.style.fontSize = fsTo + 'px'; fly.style.letterSpacing = getComputedStyle(title).letterSpacing;
+  document.body.appendChild(fly);
+  const sc = fsFrom/fsTo, fw = fly.getBoundingClientRect();
+  twins.forEach(e => e.style.visibility = 'hidden');
+  fly.animate([
+    {transform:`translate(${ox - fw.width*sc/2}px,${oy - fw.height*sc/2}px) scale(${sc})`, color:'#9a6f3c'},
+    {transform:`translate(${tr.left}px,${tr.top + (tr.height - fw.height)/2}px) scale(1)`, color:INK}
+  ], {duration:1150, easing:'cubic-bezier(.6,0,.2,1)', fill:'forwards'}).onfinish = () => { fly.remove(); done(); };
+  setTimeout(() => D.classList.add('in'), 620);
+}
+function closeTerm(after) {
+  if (busy) return; busy = true;
+  music('home'); homeAt = performance.now();
+  const D = $('detail'), home = $('home'), btn = termBtns[cur];
+  spinning = true; last = performance.now(); requestAnimationFrame(spin); target = 1;
+  const r = btn.getBoundingClientRect(), ox = r.left + r.width/2, oy = r.top + r.height/2;
+  history.replaceState(null, '', location.pathname); document.title = '时节有信｜二十四节气';
+  document.body.classList.remove('in-detail');
+  const end = () => { D.hidden = true; D.classList.remove('in'); busy = false; btn.focus({preventScroll:true}); document.dispatchEvent(new Event('seasonchange')); if (typeof after === 'function') after(); };
+  if (reduce) { home.style.visibility = ''; end(); return; }
+  home.style.setProperty('--zx', ox + 'px'); home.style.setProperty('--zy', oy + 'px');
+  home.getAnimations().forEach(a => a.cancel());
+  D.animate([{opacity:1},{opacity:0}], {duration:560, easing:'cubic-bezier(.4,0,.6,1)', fill:'forwards'}).onfinish = e => { D.hidden = true; e.target.cancel(); };
+  home.animate([{transform:'scale(1.9)', opacity:0, filter:'blur(5px)'},{transform:'scale(1)', opacity:1, filter:'blur(0)'}], {duration:1000, delay:160, easing:'cubic-bezier(.2,.7,.25,1)', fill:'backwards'}).onfinish = end;
+}
+function switchTerm(d) {
+  if (busy) return;
+  const i = (cur + d + 24) % 24, body = $('detail').querySelector('.d-body');
+  music('term', i, {cue:'switch', dir:d});   // 上一个 / 下一个 / 键盘左右都经过这里
+  if (reduce) { fill(i); return; }
+  busy = true;
+  body.animate([{opacity:1, transform:'none'},{opacity:0, transform:`translateX(${-d*40}px)`}], {duration:380, easing:'ease-in', fill:'forwards'}).onfinish = () => {
+    fill(i); $('detail').scrollTop = 0;
+    body.animate([{opacity:0, transform:`translateX(${d*40}px)`},{opacity:1, transform:'none'}], {duration:700, easing:'cubic-bezier(.16,.84,.3,1)', fill:'forwards'}).onfinish = () => busy = false;
+  };
+}
+// ——— 了解更多：由来、三候细读、故事、习俗、诗、出处 ———
+function moreHTML(i) {
+  const j = JIEQI[i], K = window.SeasonKnowledge.get(i, 0);
+  const sec = (title, body, note = '') => `<section class="m-sec"><h3>${title}${note ? `<small>${note}</small>` : ''}</h3>${body}</section>`;
+  const hou = j.sanhou.map((h, k) => { const P = window.SeasonKnowledge.get(i, k).phase;
+    return `<div class="m-hou"><b><span>${h[0]}</span>${h[1]}</b><p>${P.explanation}</p><p class="now">今天看：${P.modern}</p></div>`; }).join('');
+  const st = j.story;
+  return sec('怎么来的', `<p>${K.origin}</p><p class="q">古籍：${j.meaning}</p>`)
+    + sec('三候细读', hou, '每候约五天')
+    + sec(st.tag, st.paras.map(x => `<p>${x}</p>`).join('') + `<p class="q">${st.quote}</p>`, '民间故事与传说')
+    + sec('习俗', K.customs.map(x => `<p>${x}</p>`).join(''), '各地不尽相同')
+    + sec('诗', `<p class="m-poem">${K.poem.lines}</p><p class="q">${K.poem.dynasty} · ${K.poem.author}《${K.poem.title}》</p><p>${K.poem.reading}</p>`)
+    + `<section class="m-sec m-src"><h3>出处<small>可继续补充</small></h3><a href="${K.source}" target="_blank" rel="noopener">《月令七十二候集解》</a><a href="${K.culturalSource}" target="_blank" rel="noopener">中国非物质文化遗产网</a></section>`;
+}
+function openMore() {
+  const dr = $('drawer'), j = JIEQI[cur];
+  $('mTitle').textContent = j.name; $('mSub').textContent = `${rangeOf(cur)} · 太阳黄经 ${lonOf(cur)}°`;
+  $('mBody').innerHTML = moreHTML(cur);
+  [...dr.querySelectorAll('.m-sec>*')].forEach((e, k) => e.style.setProperty('--dl', (200 + Math.min(k, 10)*60) + 'ms'));
+  dr.scrollTop = 0; dr.showModal();
+  requestAnimationFrame(() => requestAnimationFrame(() => dr.classList.add('show')));
+}
+function closeMore() {
+  const dr = $('drawer'); if (!dr.open) return;
+  dr.classList.remove('show');
+  setTimeout(() => dr.close(), reduce ? 0 : 560);
+}
+$('moreBtn').onclick = openMore;
+$('mClose').onclick = closeMore;
+$('drawer').addEventListener('cancel', e => { e.preventDefault(); closeMore(); });
+$('drawer').addEventListener('click', e => { if (e.target === $('drawer')) closeMore(); });
+$('back').onclick = () => closeTerm();
+// 衣橱：获得新物品卡上点「去衣橱看看」→ 用现成的返回函数回到首页，再打开衣橱并弹出这件物品的简介卡
+document.addEventListener('shijie:wardrobe-go', e => {
+  const i = e.detail && e.detail.index, go = () => window.Wardrobe && window.Wardrobe.open(i);
+  if ($('detail').hidden) { go(); return; }
+  const tryClose = () => { if (busy) { setTimeout(tryClose, 80); return; } closeTerm(go); };
+  tryClose();
+});
+$('prevT').onclick = () => switchTerm(-1);
+$('nextT').onclick = () => switchTerm(1);
+addEventListener('keydown', e => {
+  if ((window.SeasonGames && window.SeasonGames.isOpen()) || $('detail').hidden || $('drawer').open || (window.Wardrobe && window.Wardrobe.isOpen()) || !$('chatPanel').hidden || ['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) return;
+  if (e.key === 'Escape') closeTerm();
+  if (e.key === 'ArrowLeft') switchTerm(-1);
+  if (e.key === 'ArrowRight') switchTerm(1);
+});
+
+// AI 助手读取当前浏览的节气
+window.getSeasonContext = () => {
+  const open = !$('detail').hidden, i = open ? cur : TODAY.i, h = open ? curHou : TODAY.hou;
+  return {termIndex:i, houIndex:h, date:todayString(), term:JIEQI[i].name, phase:JIEQI[i].sanhou[h][1]};
+};
+
+// 拱拱的第一人称小气泡：首页每 5 秒换一句；进入节气后气泡隐藏、计时暂停
+(() => {
+  const el = $('gongSay'); if (!el) return;
+  const t = JIEQI[TODAY.i].name;
+  const lines = ['我是拱拱，节气的事都能问我', `今天${t}，想听它的来历吗？`, '七十二候，我一候一候讲', '花几时开、鸟几时来，我知道', '节气吃什么、玩什么，问我呀'];
+  let k = 0;
+  setInterval(() => {
+    if (document.body.classList.contains('in-detail') || document.body.classList.contains('chat-open') || document.hidden) return;
+    k = (k + 1) % lines.length;
+    if (reduce) { el.textContent = lines[k]; return; }
+    el.classList.add('out');
+    setTimeout(() => { el.textContent = lines[k]; el.classList.remove('out'); }, 380);
+  }, 5000);
+})();
+
+addEventListener('resize', () => { buildRing(); placeTerms(); });
+buildRing(); placeTerms(); requestAnimationFrame(spin);
+
+// 支持 #节气名 直接打开
+const hashName = decodeURIComponent(location.hash.slice(1)), hi = JIEQI.findIndex(j => j.name === hashName);
+// 音乐：先登记“想听这个节气”，unlock 时引擎直接播放它，不会先放主界面音乐
+if (hi >= 0) { music('term', hi, {cue:false}); fill(hi); document.body.classList.add('in-detail'); $('detail').hidden = false; stagger(); $('detail').classList.add('in'); spinning = false; }
+})();
+</script>
+</body></html>

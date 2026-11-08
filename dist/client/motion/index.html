@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f8f7f0">
+<title>时节 · 图像先行｜独立动效试映</title>
+<link rel="stylesheet" href="scenes.css"><link rel="stylesheet" href="demo.css">
+<script src="scenes.js"></script><script src="demo.js" defer></script>
+</head>
+<body>
+<header class="header"><div class="brand"><svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><circle cx="20" cy="20" r="15"/><path d="M20 5v30M5 20h30M9.4 9.4l21.2 21.2M9.4 30.6L30.6 9.4"/><circle cx="20" cy="20" r="5" fill="var(--paper)"/><circle cx="20" cy="5" r="2" fill="var(--accent)" stroke="none"/></svg><span>时节</span></div><span class="demo-label">图像先行 · 动效试映</span></header>
+<main class="main"><div class="stage-window" id="stageWindow"><section class="hero" id="hero" aria-label="节气动效演示" data-state="ready"><div class="copy" id="copy"><h1 data-reveal>立冬</h1><p class="date-line" id="copyDate" data-reveal>2026年11月7日 · 初候</p><h2 id="phaseName" data-reveal>水始冰</h2><p class="summary" id="summary" data-reveal>天冷了，平静的水边开始结起一层薄冰，旁边仍有水纹在轻轻流动。</p><p class="observation" id="observation" data-reveal>先看薄冰的边缘，再看尚未冻住的水面。</p></div><div class="art-slot" id="artSlot"><div class="art" id="art"></div></div></section></div></main>
+<footer class="controls"><div class="time-control"><button class="arrow" id="previous" aria-label="上一页：11月7日，水始冰" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M19 12H5m6-6-6 6 6 6"/></svg></button><button class="replay" id="replay" aria-label="重播当前日期的入场动画"><span id="controlDate">11月7日 · 水始冰</span><small><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><path d="M3 6a5 5 0 1 1-.1 4M3 2v4h4"/></svg>重看入场</small></button><button class="arrow" id="next" aria-label="下一页：11月12日，地始冻"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></button></div><div class="page-dots" id="pageDots" aria-label="第1页，共2页"><i class="active"></i><i></i></div><p class="instruction">左右切换日期，点击中间重播</p></footer>
+<p id="announcement" class="sr-only" role="status" aria-live="polite"></p>
+<noscript><p class="noscript">请启用浏览器 JavaScript 以查看这版动效演示。</p></noscript>
+</body></html>
